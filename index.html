@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Calendar Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen p-6">
+    <div class="max-w-4xl mx-auto">
+        <header class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
+            <h1 class="text-3xl font-bold tracking-tight">📅 Calendar Dashboard</h1>
+            <span id="current-date" class="text-sm text-slate-400"></span>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="md:col-span-2 bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700">
+                <h2 class="text-xl font-semibold mb-4 text-sky-400">Upcoming Events</h2>
+                <div id="event-list" class="space-y-4">
+                    <p class="text-slate-400 animate-pulse">Loading events...</p>
+                </div>
+            </div>
+
+            <div class="bg-slate-800 rounded-xl p-6 shadow-xl border border-slate-700 flex flex-col justify-between">
+                <div>
+                    <h2 class="text-xl font-semibold mb-4 text-emerald-400">Dashboard Status</h2>
+                    <p class="text-sm text-slate-300 mb-2">Hosted live via GitHub Pages.</p>
+                    <p class="text-xs text-slate-500">Syncs directly with your public Google Calendar feed.</p>
+                </div>
+                <div class="mt-6">
+                    <button onclick="fetchCalendarEvents()" class="w-full bg-sky-600 hover:bg-sky-500 text-white font-medium py-2 px-4 rounded-lg transition">
+                        Refresh Events
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set header date
+        document.getElementById('current-date').innerText = new Date().toLocaleDateString('en-US', { 
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+        });
+
+        // REPLACE THESE WITH YOUR ACTUAL GOOGLE CALENDAR CONFIGURATION
+        const API_KEY = 'YOUR_GOOGLE_API_KEY';
+        const CALENDAR_ID = 'YOUR_CALENDAR_ID@group.calendar.google.com'; // e.g., your email or public calendar ID
+
+        async function fetchCalendarEvents() {
+            const eventListContainer = document.getElementById('event-list');
+            
+            if (API_KEY === 'YOUR_GOOGLE_API_KEY' || CALENDAR_ID.includes('YOUR_CALENDAR_ID')) {
+                eventListContainer.innerHTML = `
+                    <div class="p-4 bg-amber-900/50 border border-amber-600 rounded-lg text-amber-200 text-sm">
+                        <strong>Configuration Required:</strong> Please open index.html and update your <code>API_KEY</code> and <code>CALENDAR_ID</code>.
+                    </div>`;
+                return;
+            }
+
+            const timeMin = new Date().toISOString();
+            const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(CALENDAR_ID)}/events?key=${API_KEY}&timeMin=${timeMin}&showDeleted=false&singleEvents=true&maxResults=10&orderBy=startTime`;
+
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error.message);
+                }
+
+                const events = data.items;
+                if (!events || events.length === 0) {
+                    eventListContainer.innerHTML = '<p class="text-slate-400">No upcoming events found.</p>';
+                    return;
+                }
+
+                let html = '';
+                events.forEach(event => {
+                    const start = event.start.dateTime || event.start.date;
+                    const dateObj = new Date(start);
+                    const formattedDate = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    const formattedTime = event.start.dateTime ? dateObj.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : 'All Day';
+
+                    html += `
+                        <div class="p-4 bg-slate-700/50 rounded-lg border border-slate-600 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                            <div>
+                                <h3 class="font-medium text-slate-100">${event.summary || 'Untitled Event'}</h3>
+                                <p class="text-xs text-slate-400">${event.description || ''}</p>
+                            </div>
+                            <div class="text-right shrink-0">
+                                <span class="inline-block bg-sky-950 text-sky-300 text-xs px-2.5 py-1 rounded-full font-semibold border border-sky-800">
+                                    ${formattedDate} &bull; ${formattedTime}
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                eventListContainer.innerHTML = html;
+            } catch (error) {
+                eventListContainer.innerHTML = `<p class="text-rose-400 text-sm">Error loading calendar: ${error.message}</p>`;
+            }
+        }
+
+        // Load events on page load
+        fetchCalendarEvents();
+    </script>
+</body>
+</html>
