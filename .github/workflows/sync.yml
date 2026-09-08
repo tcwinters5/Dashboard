@@ -1,4 +1,4 @@
-name: Sync Google Calendars
+name: Sync Google Calendar
 
 on:
   schedule:
@@ -14,16 +14,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download and Merge iCal Feeds
+      - name: Download iCal Feed
         run: |
-          # Download First Calendar
-          curl -L "https://calendar.google.com/calendar/ical/ru2o1vaod0uvmic25ohefrbkv4%40group.calendar.google.com/public/basic.ics" -o cal1.ics
-          
-          # Download Second Calendar (Family)
-          curl -L "https://calendar.google.com/calendar/ical/family10979250294150398119%40group.calendar.google.com/public/basic.ics" -o cal2.ics
-          
-          # Combine both feeds into calendar.ics
-          cat cal1.ics cal2.ics > calendar.ics
+          curl -L "https://calendar.google.com/calendar/ical/ru2o1vaod0uvmic25ohefrbkv4%40group.calendar.google.com/public/basic.ics" -o calendar.ics
 
       - name: Commit and push if changed
         run: |
@@ -31,4 +24,4 @@ jobs:
           git config --global user.email 'actions@github.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           git add calendar.ics
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update merged calendar feeds" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-update calendar.ics" && git push)
