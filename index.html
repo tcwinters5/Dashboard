@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Calendar Dashboard</title>
+    <title>Family Command Center & Dashboard</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- ICAL.js parser -->
@@ -17,10 +17,9 @@
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen font-sans p-4">
     <div class="max-w-7xl mx-auto space-y-6">
-        <!-- Top Control Bar with Explicit View Toggle -->
+        
+        <!-- TOP NAVIGATION & VIEW TOGGLE -->
         <div class="bg-white border border-gray-300 rounded-t-lg p-4 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-            
-            <!-- Left: Date Navigators & Label -->
             <div class="flex items-center space-x-2 w-full md:w-auto justify-between md:justify-start">
                 <div class="flex items-center space-x-1">
                     <button onclick="navigateTime(-1)" class="bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-bold px-3 py-1.5 rounded text-sm shadow-sm transition">‹</button>
@@ -30,19 +29,19 @@
                 <span id="date-range-label" class="text-base font-semibold text-gray-800 ml-3 truncate">Loading...</span>
             </div>
             
-            <!-- Right: View Switcher Toggle Buttons -->
-            <div class="flex bg-gray-100 p-1 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 w-full md:w-auto justify-center">
-                <button onclick="switchView('day')" id="btn-day" class="flex-1 md:flex-initial px-4 py-2 rounded-md transition text-center">Day</button>
-                <button onclick="switchView('week')" id="btn-week" class="flex-1 md:flex-initial px-4 py-2 rounded-md transition text-center bg-white shadow-sm text-blue-600 font-bold">Week</button>
-                <button onclick="switchView('month')" id="btn-month" class="flex-1 md:flex-initial px-4 py-2 rounded-md transition text-center">Month</button>
-                <button onclick="switchView('tasks')" id="btn-tasks" class="flex-1 md:flex-initial px-4 py-2 rounded-md transition text-center">Task List</button>
+            <div class="flex bg-gray-100 p-1 rounded-lg border border-gray-200 text-xs font-semibold text-gray-600 w-full md:w-auto justify-center overflow-x-auto">
+                <button onclick="switchView('day')" id="btn-day" class="px-3 py-2 rounded-md transition text-center">Day</button>
+                <button onclick="switchView('week')" id="btn-week" class="px-3 py-2 rounded-md transition text-center bg-white shadow-sm text-blue-600 font-bold">Week</button>
+                <button onclick="switchView('month')" id="btn-month" class="px-3 py-2 rounded-md transition text-center">Month</button>
+                <button onclick="switchView('tasks')" id="btn-tasks" class="px-3 py-2 rounded-md transition text-center">Task List</button>
+                <button onclick="switchView('family')" id="btn-family" class="px-3 py-2 rounded-md transition text-center">Family Hub</button>
             </div>
         </div>
 
-        <!-- Main Dashboard Content Container -->
+        <!-- MAIN DASHBOARD CONTENT CONTAINER -->
         <div class="bg-white border-x border-b border-gray-300 rounded-b-lg shadow-sm overflow-hidden min-h-[600px] p-6">
             
-            <!-- VIEW 1: DAY VIEW (Chronological Blocks) -->
+            <!-- VIEW 1: DAY VIEW -->
             <div id="view-day" class="hidden max-w-2xl mx-auto">
                 <h2 id="day-header-title" class="text-lg font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200"></h2>
                 <div id="day-blocks-container" class="space-y-3">
@@ -50,14 +49,10 @@
                 </div>
             </div>
 
-            <!-- VIEW 2: WEEK VIEW (Chronological Columns per Day) -->
+            <!-- VIEW 2: WEEK VIEW -->
             <div id="view-week" class="block overflow-x-auto">
-                <div id="week-headers" class="week-grid-cols bg-gray-50 border border-gray-200 rounded-t-lg text-center text-xs font-semibold text-gray-600">
-                    <!-- Injected Mon-Sun headers -->
-                </div>
-                <div id="week-columns-grid" class="week-grid-cols bg-gray-100 border-x border-b border-gray-200 rounded-b-lg gap-px bg-gray-200 min-h-[500px]">
-                    <!-- Injected Mon-Sun columns -->
-                </div>
+                <div id="week-headers" class="week-grid-cols bg-gray-50 border border-gray-200 rounded-t-lg text-center text-xs font-semibold text-gray-600"></div>
+                <div id="week-columns-grid" class="week-grid-cols bg-gray-100 border-x border-b border-gray-200 rounded-b-lg gap-px bg-gray-200 min-h-[500px]"></div>
             </div>
 
             <!-- VIEW 3: MONTH VIEW -->
@@ -73,6 +68,51 @@
                 <h2 class="text-lg font-semibold text-gray-800 mb-4">Upcoming Schedule (Task List Form)</h2>
                 <div id="task-list-container" class="space-y-3">
                     <p class="text-gray-500 text-sm">Loading tasks...</p>
+                </div>
+            </div>
+
+            <!-- VIEW 5: FAMILY HUB (Dinner Menu & Routines) -->
+            <div id="view-family" class="hidden space-y-8">
+                <!-- Weekly Dinner Menu Section -->
+                <div>
+                    <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-200">
+                        <h2 class="text-lg font-semibold text-gray-800">🍽️ Weekly Dinner Menu Planner</h2>
+                        <span class="text-xs text-gray-500">Click any meal to edit</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3" id="dinner-menu-grid">
+                        <!-- Injected via script -->
+                    </div>
+                </div>
+
+                <!-- Kids' Routines Flowchart Section -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
+                    <!-- Morning Routine -->
+                    <div class="bg-amber-50/50 border border-amber-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-semibold text-amber-900 mb-3 flex items-center gap-2">
+                            <span>☀️ Kids' Morning Routine</span>
+                        </h3>
+                        <div class="space-y-2.5" id="morning-routine-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Evening Routine -->
+                    <div class="bg-indigo-50/50 border border-indigo-200 rounded-xl p-5 shadow-sm">
+                        <h3 class="font-semibold text-indigo-900 mb-3 flex items-center gap-2">
+                            <span>🌙 Kids' Evening Routine</span>
+                        </h3>
+                        <div class="space-y-2.5" id="evening-routine-list">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Household & Maintenance Tracker -->
+                <div class="pt-4 border-t border-gray-200">
+                    <h3 class="font-semibold text-gray-800 mb-3">🛠️ Household & Maintenance Checklist</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4" id="maintenance-list">
+                        <!-- Populated dynamically -->
+                    </div>
                 </div>
             </div>
 
@@ -179,18 +219,91 @@
             return { icon: '☁️', text: 'Cloudy' };
         }
 
+        function initFamilyHub() {
+            // Dinner Menu
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            const defaultDinners = ['Asian Pork Ribs', 'Tacos', 'Grilled Chicken', 'Burgers', 'Pizza Night', 'Steak & Veggies', 'Leftovers / Family Choice'];
+            let dinnerHtml = '';
+            days.forEach((day, idx) => {
+                const savedMeal = localStorage.getItem(`dinner_${day}`) || defaultDinners[idx];
+                dinnerHtml += `
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 flex flex-col justify-between">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">${day}</span>
+                        <input type="text" value="${savedMeal}" onchange="saveDinner('${day}', this.value)" class="mt-2 text-sm font-semibold text-gray-800 bg-white border border-gray-300 rounded px-2 py-1 focus:outline-none focus:border-blue-500">
+                    </div>
+                `;
+            });
+            document.getElementById('dinner-menu-grid').innerHTML = dinnerHtml;
+
+            // Morning Routines
+            const morningTasks = ['Wake up on time', 'Brush teeth & wash face', 'Get dressed & make bed', 'Eat breakfast', 'Pack school bag & shoes on'];
+            let morningHtml = '';
+            morningTasks.forEach((task, idx) => {
+                const isChecked = localStorage.getItem(`routine_m_${idx}`) === 'true';
+                morningHtml += `
+                    <label class="flex items-center space-x-3 p-2 bg-white border border-amber-200 rounded-lg cursor-pointer hover:bg-amber-50/50 transition">
+                        <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="saveRoutine('routine_m_${idx}', this.checked)" class="w-4 h-4 text-amber-600 rounded border-gray-300 focus:ring-amber-500">
+                        <span class="text-sm font-medium text-gray-800">${task}</span>
+                    </label>
+                `;
+            });
+            document.getElementById('morning-routine-list').innerHTML = morningHtml;
+
+            // Evening Routines
+            const eveningTasks = ['Pack up clothes for tomorrow', 'Clean up room / toys', 'Take a bath or shower', 'Brush teeth', 'Read a book & lights out'];
+            let eveningHtml = '';
+            eveningTasks.forEach((task, idx) => {
+                const isChecked = localStorage.getItem(`routine_e_${idx}`) === 'true';
+                eveningHtml += `
+                    <label class="flex items-center space-x-3 p-2 bg-white border border-indigo-200 rounded-lg cursor-pointer hover:bg-indigo-50/50 transition">
+                        <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="saveRoutine('routine_e_${idx}', this.checked)" class="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500">
+                        <span class="text-sm font-medium text-gray-800">${task}</span>
+                    </label>
+                `;
+            });
+            document.getElementById('evening-routine-list').innerHTML = eveningHtml;
+
+            // Maintenance Checklist
+            const maintenanceTasks = ['Take out trash bins', 'Check vehicle fluids / belts', 'Yard work & mowing', 'Grocery store restock'];
+            let maintHtml = '';
+            maintenanceTasks.forEach((task, idx) => {
+                const isChecked = localStorage.getItem(`maint_${idx}`) === 'true';
+                maintHtml += `
+                    <label class="flex items-center space-x-3 p-3 bg-gray-50 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-100 transition">
+                        <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="saveRoutine('maint_${idx}', this.checked)" class="w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500">
+                        <span class="text-sm font-medium text-gray-800">${task}</span>
+                    </label>
+                `;
+            });
+            document.getElementById('maintenance-list').innerHTML = maintHtml;
+        }
+
+        function saveDinner(day, val) {
+            localStorage.setItem(`dinner_${day}`, val);
+        }
+
+        function saveRoutine(key, val) {
+            localStorage.setItem(key, val);
+        }
+
         function switchView(view) {
             currentView = view;
-            ['day', 'week', 'month', 'tasks'].forEach(v => {
+            ['day', 'week', 'month', 'tasks', 'family'].forEach(v => {
                 document.getElementById(`view-${v}`).classList.add('hidden');
                 document.getElementById(`btn-${v}`).classList.remove('bg-white', 'shadow-sm', 'text-blue-600', 'font-bold');
             });
             document.getElementById(`view-${view}`).classList.remove('hidden');
             document.getElementById(`btn-${view}`).classList.add('bg-white', 'shadow-sm', 'text-blue-600', 'font-bold');
-            renderCurrentView();
+
+            if (view === 'family') {
+                document.getElementById('date-range-label').innerText = 'Family Hub & Routines';
+            } else {
+                renderCurrentView();
+            }
         }
 
         function navigateTime(direction) {
+            if (currentView === 'family') return;
             if (direction === 0) viewDate = new Date();
             else if (currentView === 'day') viewDate.setDate(viewDate.getDate() + direction);
             else if (currentView === 'week') viewDate.setDate(viewDate.getDate() + (direction * 7));
@@ -382,6 +495,7 @@
 
         initCalendar();
         initWeather();
+        initFamilyHub();
     </script>
 </body>
 </html>
